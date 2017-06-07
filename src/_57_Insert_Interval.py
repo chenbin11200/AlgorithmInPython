@@ -11,17 +11,24 @@ class Solution(object):
         :type newInterval: Interval
         :rtype: List[Interval]
         """
-        firstPart = [item for item in intervals if item.end < newInterval.start]
-        lastPart = [item for item in intervals if item.start > newInterval.end]
-        rest = list(set(intervals)^set(firstPart)^set(lastPart))
-        middle = newInterval
-        if rest:
-            left, right = newInterval.start, newInterval.end
-            for i in rest:
-                left = min(left, i.start)
-                right = max(right, i.end)
-            middle = Interval(left, right)
+        parts = toMergedPart, firstPart, lastPart = [],[],[]
+        mergedInterval = newInterval
 
-        return firstPart + [middle] + lastPart
+        for item in intervals:
+            if item.start > newInterval.end:
+                lastPart.append(item)
+            elif item.end < newInterval.start:
+                firstPart.append(item)
+            else:
+                toMergedPart.append(item)
+
+        # concise, however a little bit tricky way. Equals the for loop before
+        # for item in intervals:
+        #     parts[(item.end < newInterval.start) - (item.start > newInterval.end)].append(item)
+
+        if toMergedPart:
+            mergedInterval = Interval(min(toMergedPart[0].start, newInterval.start), max(toMergedPart[-1].end, newInterval.end))
+
+        return firstPart + [mergedInterval] + lastPart
 
 result = Solution().insert([Interval(1,2), Interval(3,5), Interval(6,7), Interval(8,10), Interval(12,16)],Interval(4,9))
